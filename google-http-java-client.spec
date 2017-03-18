@@ -39,7 +39,7 @@ BuildRequires: mvn(org.datanucleus:datanucleus-maven-plugin)
 BuildRequires: mvn(org.mockito:mockito-all)
 BuildRequires: mvn(org.sonatype.oss:oss-parent:pom:)
 BuildRequires: mvn(xpp3:xpp3)
-BuildRequires: /usr/bin/protoc
+#BuildRequires: /usr/bin/protoc
 
 # google-http-client/src/main/java/com/google/api/client/util/Base64.java
 Provides:      bundled(apache-commons-codec) = 1.8
