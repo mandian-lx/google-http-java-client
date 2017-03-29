@@ -222,6 +222,41 @@ rm -r google-http-client/src/test/java/com/google/api/client/http/apache/ApacheH
 # but was:<[password=password123%%3B%%7B%%7D&username=un]>
 #rm -r google-http-client/src/test/java/com/google/api/client/http/UrlEncodedContentTest.java
 
+# Add an OSGi compilant MANIFEST.MF
+for m in `find */ -name pom.xml`
+do
+%pom_add_plugin org.apache.felix:maven-bundle-plugin $m "
+<extensions>true</extensions>
+<configuration>
+	<supportedProjectTypes>
+		<supportedProjectType>bundle</supportedProjectType>
+		<supportedProjectType>jar</supportedProjectType>
+	</supportedProjectTypes>
+	<instructions>
+		<Bundle-Name>\${project.artifactId}</Bundle-Name>
+		<Bundle-Version>\${project.version}</Bundle-Version>
+	</instructions>
+</configuration>
+<executions>
+	<execution>
+		<id>bundle-manifest</id>
+		<phase>process-classes</phase>
+		<goals>
+			<goal>manifest</goal>
+		</goals>
+	</execution>
+</executions>"
+done
+
+# Add the META-INF/INDEX.LIST (fix jar-not-indexed warning) and
+# the META-INF/MANIFEST.MF to the jar archive
+%pom_xpath_inject "pom:plugin[pom:artifactId[./text()='maven-jar-plugin']]/pom:configuration/pom:archive" "
+	<manifestFile>\${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>" .
+%pom_xpath_inject "pom:plugin[pom:artifactId[./text()='maven-jar-plugin']]/pom:configuration/pom:archive/pom:manifest" "
+	<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+	<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>" .
+%pom_remove_plugin :maven-jar-plugin google-http-client-jdo
+
 %build
 
 %mvn_build -s
